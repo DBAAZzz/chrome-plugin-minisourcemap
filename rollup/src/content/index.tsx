@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
-import SourceFile from './SourceFile'
+import SourceFile, { errInfo } from './SourceFile'
+import { getFingerprint } from '../utils'
 import { useNotify } from './Notification/index'
 
 const appEl = document.getElementsByTagName('body')[0]
@@ -8,13 +9,6 @@ const buttonEl = document.createElement('div')
 buttonEl.setAttribute('id', 'sourceMapPage')
 appEl?.appendChild(buttonEl)
 
-interface errInfo {
-  source: string,
-  line: number,
-  column: number,
-  name: string,
-  sourceContent: string
-}
 
 // 处理响应的 code
 function handleSourceFileContent(content: string, keyLine: number): string {
@@ -63,7 +57,13 @@ export async function reportErrorApi(errorString: string): Promise<{
 
 const App = () => {
   const [showSourceFile, setShowSourceFile] = useState(false)
-  const [errorInfo, setErrorInfo] = useState({})
+  const [errorInfo, setErrorInfo] = useState({
+    source: '',
+    line: 0,
+    column: 0,
+    name: '',
+    sourceContent: ''
+  })
 
   const { show, RenderNotification } = useNotify()
 
@@ -79,8 +79,8 @@ const App = () => {
   }
 
   useEffect(() => {
+    getFingerprint()
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-      console.log('onMessage request', request)
       const { type, message } = request
       if (type == 1) {
         localStorage.setItem('minisource_browserId', message)
@@ -92,17 +92,16 @@ const App = () => {
         })
 
         if (detailContainer.length > 0) {
-
           detailContainer.forEach((el, index: number) => {
             var sourceNode = document.querySelector(".detail__link"); // 获得被克隆的节点对象   
-            var clonedNode = sourceNode?.cloneNode(true);
+            var clonedNode = sourceNode?.cloneNode(true) as HTMLElement;
             clonedNode.innerText = '解析'
             clonedNode.setAttribute('date-index', String(index))
             clonedNode.setAttribute('class', 'detail__link detail__link_clone')
             el.appendChild(clonedNode)
             clonedNode?.addEventListener('click', (e) => {
               e.stopPropagation()
-              reportError(detailContainer[index].innerText)
+              reportError((el as HTMLElement).innerText)
             })
             // 这里是返回给 background 的内容
             sendResponse('success')
@@ -120,10 +119,9 @@ const App = () => {
     <div>
       <RenderNotification>
       </RenderNotification>
-      <SourceFile show={showSourceFile} close={() => close()} errorInfo={errorInfo}></SourceFile>
+      <SourceFile show={showSourceFile} onClose={() => close()} errorInfo={errorInfo}></SourceFile>
     </div>
   )
-
 }
 
 ReactDOM.render(
