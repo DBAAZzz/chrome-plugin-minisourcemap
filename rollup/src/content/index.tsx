@@ -25,7 +25,7 @@ export async function reportErrorApi(errorString: string): Promise<{
   data: errInfo
 }> {
   return new Promise(async (resolve, reject) => {
-    fetch('https://175.178.74.222:3000/getErrorInfo', {
+    fetch('http:/localhost:3000/getErrorInfo', {
       method: 'post',
       credentials: 'include',
       headers: {

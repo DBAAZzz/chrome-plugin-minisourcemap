@@ -12,7 +12,7 @@ chrome.cookies.getAll({ domain: 'wedata.weixin.qq.com' }, function (cookie) {
 });
 
 const getSourceMap = async () => {
-  let data = await fetch('http://175.178.74.222:3000/getSourceMap', {
+  let data = await fetch('http://localhost:3000/getSourceMap', {
     method: 'post',
     credentials: 'include',
     headers: {
