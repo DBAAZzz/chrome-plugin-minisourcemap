@@ -1,0 +1,24 @@
+{
+  "name": "微信小程序错误解析",
+  "icons": {
+    "16": "./assets/logo.png",
+    "48": "./assets/logo.png",
+    "128": "./assets/logo.png"
+  },
+  "background": { "scripts": ["background/index.ts"] },
+  "content_scripts": [
+    {
+      "js": ["content/index.tsx"],
+      "matches": ["https://wedata.weixin.qq.com/*"] 
+    }
+  ],
+  "web_accessible_resources": [
+    "content/index.tsx"
+  ],
+  "browser_action": { "default_popup": "pages/popup/index.html" },
+  "permissions":[
+    "cookies",
+    "webRequest",
+    "*://*.weixin.qq.com/*"
+  ]
+}
